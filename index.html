@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enter Your Name</title>
+    <style>
+        /* Basic page styling */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        /* Logo styling */
+        .logo {
+            width: 150px;
+            margin-bottom: 20px;
+        }
+
+        /* Form styling */
+        .form-container {
+            display: flex;
+            align-items: center;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            padding: 10px;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Input styling */
+        #user-name {
+            border: none;
+            outline: none;
+            padding: 10px;
+            font-size: 16px;
+            flex-grow: 1;
+            border-radius: 30px;
+        }
+
+        /* Submit button (arrow) styling */
+        .submit-btn {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: none;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007bff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Logo -->
+    <img src="logo.png" alt="Logo" class="logo">
+
+    <!-- Input Form -->
+    <div class="form-container">
+        <input type="text" id="user-name" placeholder="Enter your name" required>
+        <button class="submit-btn" id="submit-btn">→</button>
+        <div class="loading-spinner" id="loading-spinner"></div>
+    </div>
+
+    <script>
+        document.getElementById('submit-btn').addEventListener('click', function(event) {
+            event.preventDefault();
+
+            const userName = document.getElementById('user-name').value;
+            const loadingSpinner = document.getElementById('loading-spinner');
+            
+            if (!userName) {
+                alert("Please enter your name.");
+                return;
+            }
+
+            // Show the loading spinner
+            loadingSpinner.style.display = 'inline-block';
+
+            // Get the user's IP address using ipify
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => {
+                    const userIP = data.ip;
+
+                    console.log('User IP Address:', userIP); // Debugging line to see the IP address
+
+                    // Send the name and IP address to Google Sheets via Google Apps Script
+                    fetch(`https://script.google.com/macros/s/AKfycbzPPN21kSk1aMeTXzIqMgaF3G9kK-Emh7D-KvcWKth8S9ufoLVwqLihWiKYFqkdI4Fi/exec?user=${encodeURIComponent(userName)}&ip=${encodeURIComponent(userIP)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.referralLink) {
+                                // Redirect to the referral link
+                                window.location.href = data.referralLink;
+                            } else {
+                                alert(data.error || "No available referral links.");
+                            }
+                        })
+                        .catch(error => {
+                            alert("Error submitting data.");
+                            console.error('Error:', error);
+                        })
+                        .finally(() => {
+                            // Hide the loading spinner
+                            loadingSpinner.style.display = 'none';
+                        });
+                })
+                .catch(error => {
+                    alert("Error fetching IP address.");
+                    console.error('Error:', error);
+                });
+        });
+    </script>
+</body>
+</html>
