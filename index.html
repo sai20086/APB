@@ -3,164 +3,189 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dynamic Step Form</title>
+  <title>Airp Form</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap');
+    /* Color and Styling Variables */
+    :root {
+      --color-primary: #ff6000;
+      --color-secondary: #ffffff;
+      --color-error: #a40000;
+      --color-valid: #00df0e;
+    }
+
     body {
-      font-family: 'Montserrat', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #121212;
-      color: #ffffff;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
       height: 100vh;
+      margin: 0;
+      font-family: 'Poppins', Arial, sans-serif;
+      background-image: url("https://picsum.photos/id/353/1920/1080");
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
     }
 
     .form-container {
-      background: #1f1f1f;
-      padding: 20px 30px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      width: 100%;
+      background-color: rgba(255, 255, 255, 0.15);
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 20px 5px rgba(0, 0, 0, 0.5);
       max-width: 400px;
+      width: 100%;
     }
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 22px;
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
     }
 
-    .form-step {
-      margin-bottom: 15px;
+    .input-wrapper {
+      position: relative;
     }
 
     label {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 5px;
+      position: absolute;
+      top: 1rem;
+      left: 1.25rem;
+      color: var(--color-secondary);
+      transition: all 0.3s;
+      pointer-events: none;
     }
 
     input {
       width: 100%;
-      padding: 10px;
-      font-size: 14px;
-      border: 1px solid #444;
-      border-radius: 5px;
-      margin-bottom: 15px;
-      background-color: #2c2c2c;
-      color: #ffffff;
+      padding: 1rem 1.25rem 0.5rem;
+      border: none;
+      border-bottom: 1px solid var(--color-secondary);
+      background-color: transparent;
+      color: var(--color-secondary);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input::placeholder {
+      color: transparent;
     }
 
     input:focus {
-      border-color: #e3b23c;
-      outline: none;
+      border-color: var(--color-primary);
     }
 
-    .next-btn, .submit-btn {
-      width: 100%;
-      padding: 10px;
-      font-size: 14px;
+    input:focus + label,
+    input:not(:placeholder-shown) + label {
+      top: -0.5rem;
+      left: 0.5rem;
+      font-size: 0.875rem;
+      color: var(--color-primary);
+    }
+
+    input:invalid {
+      border-color: var(--color-error);
+    }
+
+    input:valid {
+      border-color: var(--color-valid);
+    }
+
+    button {
+      background-color: var(--color-primary);
+      color: var(--color-secondary);
+      padding: 0.75rem;
+      font-size: 1rem;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      background-color: #e3b23c;
-      color: #000;
+      transition: background-color 0.3s;
     }
 
-    .submit-btn {
+    button:hover {
+      background-color: #d95400;
+    }
+
+    .loading-spinner {
       display: none;
+      text-align: center;
+      color: var(--color-secondary);
+      margin-top: 1rem;
     }
   </style>
 </head>
 <body>
 
-<div class="form-container">
-  <h2>Dynamic Form</h2>
-  <!-- Step 1 -->
-  <div class="form-step">
-    <label for="name">Name</label>
-    <input type="text" id="name" name="name" placeholder="Enter your name" required>
+  <div class="form-container">
+    <form id="referral-form">
+      <div class="input-wrapper">
+        <input type="text" id="user-name" placeholder="Enter your name" required>
+        <label for="user-name">Name</label>
+      </div>
+      <div class="input-wrapper">
+        <input type="email" id="user-email" placeholder="Enter your email" required>
+        <label for="user-email">Email</label>
+      </div>
+      <div class="input-wrapper">
+        <input type="tel" id="user-phone" placeholder="Enter your mobile number" pattern="[0-9]{10}" required>
+        <label for="user-phone">Mobile Number</label>
+      </div>
+      <button type="button" id="submit-btn">Submit</button>
+      <div class="loading-spinner" id="loading-spinner">Submitting...</div>
+    </form>
   </div>
-  <!-- Step 2 -->
-  <div class="form-step" id="email-step" style="display: none;">
-    <label for="email">Email</label>
-    <input type="email" id="email" name="email" placeholder="Enter your email" required>
-  </div>
-  <!-- Step 3 -->
-  <div class="form-step" id="phone-step" style="display: none;">
-    <label for="phone">Phone</label>
-    <input type="text" id="phone" name="phone" placeholder="Enter your phone number" required>
-  </div>
-  <!-- Buttons -->
-  <button type="button" class="next-btn" id="next-btn">Next</button>
-  <button type="button" class="submit-btn" id="submit-btn">Submit</button>
-</div>
 
-<script>
-  const nextBtn = document.getElementById('next-btn');
-  const submitBtn = document.getElementById('submit-btn');
-  const emailStep = document.getElementById('email-step');
-  const phoneStep = document.getElementById('phone-step');
-  const nameInput = document.getElementById('name');
-  const emailInput = document.getElementById('email');
-  const phoneInput = document.getElementById('phone');
-  let currentStep = 1;
+  <script>
+    document.getElementById('submit-btn').addEventListener('click', function (event) {
+      event.preventDefault();
 
-  nextBtn.addEventListener('click', () => {
-    if (currentStep === 1 && nameInput.value.trim() === "") {
-      alert("Please enter your name.");
-      return;
-    }
-    if (currentStep === 2 && emailInput.value.trim() === "") {
-      alert("Please enter your email.");
-      return;
-    }
+      const userName = document.getElementById('user-name').value.trim();
+      const userEmail = document.getElementById('user-email').value.trim();
+      const userPhone = document.getElementById('user-phone').value.trim();
+      const loadingSpinner = document.getElementById('loading-spinner');
 
-    if (currentStep === 1) {
-      emailStep.style.display = 'block';
-      currentStep++;
-    } else if (currentStep === 2) {
-      phoneStep.style.display = 'block';
-      nextBtn.style.display = 'none';
-      submitBtn.style.display = 'block';
-      currentStep++;
-    }
-  });
+      if (!userName || !userEmail || !userPhone) {
+        alert("Please fill out all fields.");
+        return;
+      }
 
-  submitBtn.addEventListener('click', () => {
-    if (phoneInput.value.trim() === "") {
-      alert("Please enter your phone number.");
-      return;
-    }
+      if (!/^[0-9]{10}$/.test(userPhone)) {
+        alert("Please enter a valid 10-digit mobile number.");
+        return;
+      }
 
-    // Send data to Google Sheets
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbzPPN21kSk1aMeTXzIqMgaF3G9kK-Emh7D-KvcWKth8S9ufoLVwqLihWiKYFqkdI4Fi/exec'; // Replace with your script URL
-    const formData = new URLSearchParams({
-      name: nameInput.value,
-      email: emailInput.value,
-      phone: phoneInput.value
+      loadingSpinner.style.display = 'block';
+
+      fetch('https://api.ipify.org?format=json')
+        .then(response => response.json())
+        .then(data => {
+          const userIP = data.ip;
+
+          fetch(`https://script.google.com/macros/s/AKfycbwSbuPVer8-Das9lNXwgOEXx_KH_0GR5IOjOo9xlptkROpJ-PuMVy5AMqE9Z9kqi8JK/exec?user=${encodeURIComponent(userName)}&email=${encodeURIComponent(userEmail)}&phone=${encodeURIComponent(userPhone)}&ip=${encodeURIComponent(userIP)}`)
+            .then(response => response.json())
+            .then(data => {
+              if (data.referralLink) {
+                window.location.href = data.referralLink;
+              } else {
+                alert(data.error || "An error occurred.");
+              }
+            })
+            .catch(error => {
+              alert("Error submitting data.");
+              console.error('Error:', error);
+            })
+            .finally(() => {
+              loadingSpinner.style.display = 'none';
+            });
+        })
+        .catch(error => {
+          alert("Error fetching IP address.");
+          console.error('Error:', error);
+          loadingSpinner.style.display = 'none';
+        });
     });
-
-    fetch(scriptURL, {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => {
-      alert("Form submitted successfully!");
-      nameInput.value = "";
-      emailInput.value = "";
-      phoneInput.value = "";
-      window.location.reload();
-    })
-    .catch(error => {
-      alert("An error occurred while submitting the form.");
-      console.error("Error:", error);
-    });
-  });
-</script>
+  </script>
 
 </body>
 </html>
